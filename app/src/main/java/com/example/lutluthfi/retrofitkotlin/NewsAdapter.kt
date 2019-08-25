@@ -9,8 +9,12 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.example.lutluthfi.retrofitkotlin.model.BeritaResponse.Beritas
+import android.arch.lifecycle.MutableLiveData
+
+
 
 class NewsAdapter(callback: Callback) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
 
     companion object {
         private lateinit var mCallback: Callback
@@ -39,9 +43,11 @@ class NewsAdapter(callback: Callback) : RecyclerView.Adapter<RecyclerView.ViewHo
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val context = (holder as NewsViewHolder).itemView.context
-        (holder).mNewsTitleTextView.text = mBeritas[position].judul
-        Glide.with(context).asBitmap().load(mBeritas[position].foto).into((holder).mNewsPosterImageView)
-        (holder).mNewsContentTextView.text = mBeritas[position].konten
+        (holder).mNewsTitleTextView.text = mBeritas[position].nameuser
+       // Glide.with(context).asBitmap().load(mBeritas[position].foto).into((holder).mNewsPosterImageView)
+        (holder).mNewsContentTextView.text = mBeritas[position].designation
+
+
     }
 
     interface Callback {

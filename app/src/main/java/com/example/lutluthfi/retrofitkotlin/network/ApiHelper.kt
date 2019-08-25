@@ -7,6 +7,6 @@ import retrofit2.http.Query
 
 interface ApiHelper {
 
-    @GET("api/v1/berita")
+    @GET("json_object.json")
     fun getBeritaByPage(@Query("page") page : Int) : Observable<BeritaResponse.Beritas>
 }

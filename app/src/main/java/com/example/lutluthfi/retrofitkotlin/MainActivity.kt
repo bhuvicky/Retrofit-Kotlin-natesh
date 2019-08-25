@@ -1,9 +1,7 @@
 package com.example.lutluthfi.retrofitkotlin
 
+
 import android.os.Bundle
-import android.support.design.widget.Snackbar
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -19,81 +17,68 @@ import com.example.lutluthfi.retrofitkotlin.model.BeritaResponse.Beritas
 import io.reactivex.annotations.NonNull
 import android.support.v7.widget.RecyclerView
 import android.util.Log
+import android.view.View
+import android.widget.ProgressBar
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity(), NewsAdapter.Callback {
 
-    private val mCompositeDisposable = CompositeDisposable()
-    private var mRecyclerView: RecyclerView? = null
     private var mAdapter: NewsAdapter? = null
+    private lateinit var newsViewModel: NewsViewModel
+    private var progressBar: ProgressBar? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-        mRecyclerView = findViewById(R.id.rv_berita)
+
+        newsViewModel = ViewModelProviders.of(this).get(NewsViewModel::class.java)
+        /*recycler view */
         setupRecyclerView()
-        fetchingNewsByPage(1)
+        setObservers();
 
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-        }
+        /*api call */
+        executeNewsByPage()
     }
-
     private fun setupRecyclerView() {
         val layoutManager = LinearLayoutManager(this)
         layoutManager.orientation = LinearLayoutManager.VERTICAL
-        mRecyclerView?.setHasFixedSize(true)
-        mRecyclerView?.layoutManager = layoutManager
+        rv_berita?.setHasFixedSize(true)
+        rv_berita?.layoutManager = layoutManager
         mAdapter = NewsAdapter(this)
-        mRecyclerView?.adapter = mAdapter
+        rv_berita?.adapter = mAdapter
+    }
+
+    private fun setObservers() {
+        newsViewModel.isLoadingLiveData.observe(this, Observer { aBoolean ->
+            if (aBoolean!!) {
+                progressBar?.visibility = View.VISIBLE
+            } else {
+                progressBar?.visibility = View.GONE
+            }
+        })
+
+        newsViewModel.apiResponseSuccessLiveData.observe(this, Observer(this::handleApiResponseSuccess))
+        newsViewModel.errorMsgLiveData.observe(this, Observer(this::handleApiResponseError))
+    }
+
+    private fun executeNewsByPage() {
+        newsViewModel.fetchingNewsByPage(1)
     }
 
     override fun onNewsItemClick(berita: BeritaResponse.Berita) {
-        Toast.makeText(this, berita.judul, Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, berita.nameuser, Toast.LENGTH_SHORT).show()
     }
 
-    private fun fetchingNewsByPage(page: Int) {
-        mCompositeDisposable.add(ApiClient.create().getBeritaByPage(page)
-                .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(object : DisposableObserver<BeritaResponse.Beritas>() {
-                    override fun onNext(t: Beritas) {
-                        mAdapter?.addNews(t)
-                    }
-
-                    override fun onError(e: Throwable) {
-                        Log.d("MainActivity", e.message)
-                    }
-
-                    override fun onComplete() {
-                        Toast.makeText(this@MainActivity, "Success", Toast.LENGTH_SHORT).show()
-                    }
-                }))
+    private fun handleApiResponseSuccess(result: BeritaResponse.Beritas?) {
+        mAdapter?.addNews(result!!)
     }
 
-    // Second option if you want to separate the logic
-    private fun getObserverBeritas(): DisposableObserver<Beritas> {
-        return object : DisposableObserver<Beritas>() {
-            override fun onNext(@NonNull beritas: Beritas) {
-            }
+    private fun handleApiResponseError(error: String?) {
+        Toast.makeText(this@MainActivity, error, Toast.LENGTH_SHORT).show()
 
-            override fun onError(@NonNull e: Throwable) {
-            }
-
-            override fun onComplete() {
-            }
-        }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_settings -> true
-            else -> super.onOptionsItemSelected(item)
-        }
     }
 }

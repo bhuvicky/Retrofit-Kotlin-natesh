@@ -6,29 +6,19 @@ import com.google.gson.annotations.SerializedName
 class BeritaResponse {
 
     open class Beritas {
-        @SerializedName("data")
+        @SerializedName("employee")
         @Expose
         open val datas: List<Berita>? = null
     }
 
     open class Berita {
-        @SerializedName("id")
+
+        @SerializedName("name")
         @Expose
-        open val id: Int? = null
-        @SerializedName("judul")
+        open val nameuser: String? = null
+        @SerializedName("designation")
         @Expose
-        open val judul: String? = null
-        @SerializedName("foto")
-        @Expose
-        open val foto: String? = null
-        @SerializedName("konten")
-        @Expose
-        open val konten: String? = null
-        @SerializedName("sumber")
-        @Expose
-        open val sumber: String? = null
-        @SerializedName("created_at")
-        @Expose
-        open val createdAt: String? = null
+        open val designation: String? = null
+
     }
 }

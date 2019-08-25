@@ -17,7 +17,7 @@ class ApiClient {
             val rxAdapter = RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io())
             val client = OkHttpClient.Builder().addInterceptor(interceptor).build()
             if (mRetrofit == null) {
-                mRetrofit = Retrofit.Builder().baseUrl("http://belajaryuk.viralio.media/")
+                mRetrofit = Retrofit.Builder().baseUrl("http://api.androiddeft.com/retrofit/")
                         .client(client).addConverterFactory(GsonConverterFactory.create())
                         .addCallAdapterFactory(rxAdapter).build()
             }
